@@ -128,19 +128,18 @@ func openScopefile() (io.ReadCloser, error) {
 		return nil, err
 	}
 
-	for {
-		f, err := os.Open(filepath.Join(pwd, ".scope"))
+	path := strings.Split(pwd, "/")
 
-		// found one!
+	for index := range path {
+		fpath := strings.Join(path[:len(path)-index], "/") + "/.scope"
+
+		_, err := os.Stat(fpath)
 		if err == nil {
+			f, _ := os.Open(fpath)
 			return f, nil
+		} else {
+			continue
 		}
-
-		newPwd := filepath.Dir(pwd)
-		if newPwd == pwd {
-			break
-		}
-		pwd = newPwd
 	}
 
 	return nil, errors.New("unable to find .scope file in current directory or any parent directory")
